@@ -3,16 +3,19 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/dibros?allowPublicKeyRetrieval=true&sslMode=DISABLED&useTimezone=true&serverTimezone=UTC
-    username: root
-    password: root
+    url: jdbc:mysql://root:lsVNyOr52vfWtO6SFPjE@containers-us-west-200.railway.app:5645/railway
+
+#  datasource:
+#    url: jdbc:mysql://127.0.0.1:3306/dibros?allowPublicKeyRetrieval=true&sslMode=DISABLED&useTimezone=true&serverTimezone=UTC
+#    username: root
+#    password: root
 
 eureka:
   instance:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:7081/eureka/
+      defaultZone: https://dibros-store-discovery.up.railway.app/eureka/
 jwt:
   config:
     type: signed
