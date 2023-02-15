@@ -22,7 +22,7 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:8081/eureka/
+      defaultZone: https://dibros-store-discovery.up.railway.app/eureka/
 
 jwt:
   config:

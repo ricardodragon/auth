@@ -6,7 +6,6 @@
     <groupId>com.dibros</groupId>
     <artifactId>dibros</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>auth</artifactId>
   <version>0.0.1-SNAPSHOT</version>
@@ -39,6 +38,13 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>myMavenRepo.read</id>
+      <url>https://mymavenrepo.com/repo/nZdvhKm4aXYNhRyRgskY/</url>
+    </repository>
+  </repositories>
 
   <build>
     <finalName>auth</finalName>
