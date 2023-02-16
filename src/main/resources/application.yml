@@ -16,8 +16,6 @@ spring:
     url: jdbc:mysql://root:lsVNyOr52vfWtO6SFPjE@containers-us-west-200.railway.app:5645/railway
 
 eureka:
-  instance:
-    prefer-ip-address: true
   client:
     service-url:
       defaultZone: https://dibros-discovery.up.railway.app/eureka/
