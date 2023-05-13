@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -49,8 +50,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication auth) {
-
-        SignedJWT signedJWT = tokenCreator.createSignedJWT(auth);
+        SignedJWT signedJWT = tokenCreator.createSignedJWT((Usuario) auth.getPrincipal());
         String encryptedToken = tokenCreator.encryptToken(signedJWT);
 
         log.info("Token generated successfully, adding it to the response header");

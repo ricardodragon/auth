@@ -7,12 +7,10 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 
 @SpringBootApplication
 @EntityScan({"com.dibros.core.model"})
-@EnableJpaRepositories({"com.dibros.core.repository"})
 @EnableEurekaClient
 @EnableConfigurationProperties(value = JwtConfiguration.class)
 @ComponentScan("com.dibros")

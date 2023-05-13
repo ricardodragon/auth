@@ -13,7 +13,7 @@ public interface UsuarioMapper {
     UsuarioMapper INSTANCE = Mappers.getMapper(UsuarioMapper.class);
 
     default Usuario toUsuarioCryp(UsuarioPostDTO usuarioPostDTO) {
-        return new Usuario(usuarioPostDTO.getId(), usuarioPostDTO.getEmail(), usuarioPostDTO.getUsername(), new BCryptPasswordEncoder().encode(usuarioPostDTO.getPassword()), usuarioPostDTO.getRole());
+        return new Usuario(usuarioPostDTO.getId(), usuarioPostDTO.getUsername(), new BCryptPasswordEncoder().encode(usuarioPostDTO.getPassword()));
     }
 
     UsuarioDTO toUsuarioDTO(Usuario usuario);

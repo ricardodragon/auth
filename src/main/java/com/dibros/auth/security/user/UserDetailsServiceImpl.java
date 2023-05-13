@@ -1,7 +1,7 @@
 package com.dibros.auth.security.user;
 
+import com.dibros.auth.repository.UsuarioRepository;
 import com.dibros.core.model.Usuario;
-import com.dibros.core.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
-import static org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList;
+import static java.util.Collections.emptyList;
 
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @Service
@@ -38,34 +38,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     private static final class CustomUserDetails extends Usuario implements UserDetails {
-
-        CustomUserDetails(@NotNull Usuario usuario) {
-            super(usuario);
-        }
-
-        @Override
-        public Collection<? extends GrantedAuthority> getAuthorities() {
-            return commaSeparatedStringToAuthorityList("ROLE_" + this.getRole());
-        }
-
-        @Override
-        public boolean isAccountNonExpired() {
-            return true;
-        }
-
-        @Override
-        public boolean isAccountNonLocked() {
-            return true;
-        }
-
-        @Override
-        public boolean isCredentialsNonExpired() {
-            return true;
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return true;
-        }
+        CustomUserDetails(@NotNull Usuario usuario) {super(usuario);}
+        @Override public Collection<? extends GrantedAuthority> getAuthorities() {return emptyList();}
+        @Override public boolean isAccountNonExpired() {return true;}
+        @Override public boolean isAccountNonLocked() {return true;}
+        @Override public boolean isCredentialsNonExpired() {return true;}
+        @Override public boolean isEnabled() {return true;}
     }
 }

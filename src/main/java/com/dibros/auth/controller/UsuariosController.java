@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/usuarios")
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @Api(value = "Endpoints to manage usuarios")
 public class UsuariosController {
@@ -33,6 +32,12 @@ public class UsuariosController {
     @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
     public ResponseEntity<UsuarioDTO> postUsuario(@RequestBody UsuarioPostDTO usuarioPostDTO) {
         return new ResponseEntity<>(this.usuarioService.post(usuarioPostDTO), HttpStatus.OK);
+    }
+
+    @PostMapping("/email-token")
+    @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
+    public ResponseEntity<String> emailToken(@RequestParam String email) {
+        return new ResponseEntity<>(this.usuarioService.emailToken(email), HttpStatus.OK);
     }
 
     @PutMapping

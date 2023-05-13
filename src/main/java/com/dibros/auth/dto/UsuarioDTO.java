@@ -11,10 +11,8 @@ import lombok.*;
 public class UsuarioDTO {
 
     private Long id;
-    private String email;
     private String username;
     @Getter(onMethod = @__( @JsonIgnore))
     private String password;
-    private String role;
 
 }
