@@ -48,15 +48,8 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 
     @SneakyThrows
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication auth) {
-        SignedJWT signedJWT = tokenCreator.createSignedJWT((Usuario) auth.getPrincipal());
-        String encryptedToken = tokenCreator.encryptToken(signedJWT);
-
-        log.info("Token generated successfully, adding it to the response header");
-
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication auth) {
         response.addHeader("Access-Control-Expose-Headers", "XSRF-TOKEN" + jwtConfiguration.getHeader().getName());
-
-        response.addHeader(jwtConfiguration.getHeader().getName(), jwtConfiguration.getHeader().getPrefix() + encryptedToken);
+        response.addHeader(jwtConfiguration.getHeader().getName(), jwtConfiguration.getHeader().getPrefix() + this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT((Usuario) auth.getPrincipal())));
     }
 }

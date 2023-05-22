@@ -34,11 +34,18 @@ public class UsuariosController {
         return new ResponseEntity<>(this.usuarioService.post(usuarioPostDTO), HttpStatus.OK);
     }
 
+    @PostMapping("/cadastro")
+    @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
+    public ResponseEntity<UsuarioDTO> cadUsuario(@RequestBody UsuarioPostDTO usuarioPostDTO) {
+        return new ResponseEntity<>(this.usuarioService.postCriptografico(usuarioPostDTO), HttpStatus.OK);
+    }
+
     @PostMapping("/email-token")
     @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
     public ResponseEntity<String> emailToken(@RequestParam String email) {
         return new ResponseEntity<>(this.usuarioService.emailToken(email), HttpStatus.OK);
     }
+
 
     @PutMapping
     @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
@@ -56,10 +63,10 @@ public class UsuariosController {
     @ApiOperation(value = "List all available courses", response = UsuarioDTO[].class)
     public ResponseEntity<String> deleteUsuario(Principal principal, @PathVariable Long id) {
         try{
-            return new ResponseEntity<>(this.usuarioService.deleteUser((Usuario) ((UsernamePasswordAuthenticationToken) principal).getPrincipal(), id), HttpStatus.OK);
+            return new ResponseEntity<>(this.usuarioService.deleteUser(id), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
