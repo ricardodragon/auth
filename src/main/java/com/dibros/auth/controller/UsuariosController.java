@@ -17,15 +17,16 @@ import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@RequestMapping("/usuarios")
 @Api(value = "Endpoints to manage usuarios")
 public class UsuariosController {
 
     private final UsuarioService usuarioService;
 
     @GetMapping
-    @ApiOperation(value = "List all available courses", response = Usuario.class)
+    @ApiOperation(value = "List all available courses", response = UsuarioDTO.class)
     public ResponseEntity<UsuarioDTO> getUsuario(Principal principal) {
-        return new ResponseEntity<>(usuarioService.getApplicationUserByUsername((Usuario) ((UsernamePasswordAuthenticationToken) principal).getPrincipal()), HttpStatus.OK);
+        return new ResponseEntity<>(this.usuarioService.getApplicationUserByUsername((Usuario) ((UsernamePasswordAuthenticationToken) principal).getPrincipal()), HttpStatus.OK);
     }
 
     @PostMapping
