@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 
@@ -37,8 +38,9 @@ public class UsuariosController {
 
     @PostMapping("/cadastro")
     @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
-    public ResponseEntity<UsuarioDTO> cadUsuario(@RequestBody UsuarioPostDTO usuarioPostDTO) {
-        return new ResponseEntity<>(this.usuarioService.postCriptografico(usuarioPostDTO), HttpStatus.OK);
+    public ResponseEntity<UsuarioDTO> cadUsuario(@RequestPart UsuarioPostDTO usuarioPostDTO,
+                                                 @RequestPart(required = false)MultipartFile file) {
+        return new ResponseEntity<>(this.usuarioService.postCriptografico(usuarioPostDTO, file), HttpStatus.OK);
     }
 
     @PostMapping("/email-token")

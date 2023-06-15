@@ -10,8 +10,10 @@ import lombok.*;
 public class UsuarioPostDTO {
 
     private Long id;
-    private String username;
+    private String email;
     private String password;
+    private String nome;
+    private String imagemPath;
     private String token;
 
 }

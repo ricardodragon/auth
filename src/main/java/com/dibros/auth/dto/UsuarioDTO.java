@@ -11,8 +11,10 @@ import lombok.*;
 public class UsuarioDTO {
 
     private Long id;
-    private String username;
+    private String email;
     @Getter(onMethod = @__( @JsonIgnore))
     private String password;
+    private String nome;
+    private String imagemPath;
 
 }

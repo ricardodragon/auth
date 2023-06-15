@@ -39,7 +39,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
         if (usuario == null)
             throw new UsernameNotFoundException("Unable to retrieve the username or password ");
 
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(usuario.getUsername(), usuario.getPassword(), emptyList());
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getPassword(), emptyList());
 
         usernamePasswordAuthenticationToken.setDetails(usuario);
 

@@ -13,6 +13,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -37,8 +38,9 @@ public class UsuarioService {
     }
 
     @SneakyThrows
-    public UsuarioDTO postCriptografico(UsuarioPostDTO usuarioPostDTO) {
-        usuarioPostDTO.setUsername(SignedJWT.parse(this.tokenConverter.decryptToken(usuarioPostDTO.getToken())).getJWTClaimsSet().getSubject());
+    public UsuarioDTO postCriptografico(UsuarioPostDTO usuarioPostDTO, MultipartFile file) {
+        usuarioPostDTO.setEmail(SignedJWT.parse(this.tokenConverter.decryptToken(usuarioPostDTO.getToken())).getJWTClaimsSet().getSubject());
+
         return UsuarioMapper.INSTANCE.toUsuarioDTO(this.usuarioRepository.save(UsuarioMapper.INSTANCE.toUsuarioCryp(usuarioPostDTO)));
     }
 
@@ -82,7 +84,7 @@ public class UsuarioService {
         //Remetente
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
         message.setSubject("Dando dibros");
-        message.setContent("Você está dando um dibros: \n<br/><br/> Link: <br/><a style='cursor:pointer;font-weigth:bolder;' href='http://localhost:3030/nova-senha/"+this.tokenCreator.createSignedJWT(new Usuario(null, email, null)).serialize()+"'>Clique aqui pra dibrar</a><br/><br/><br/><br/>", "text/html");
+        message.setContent("Você está dando um dibros: \n<br/><br/> Link: <br/><a style='cursor:pointer;font-weigth:bolder;' href='http://localhost:3030/nova-senha/"+this.tokenCreator.createSignedJWT(new Usuario().builder().email(email).build()).serialize()+"'>Clique aqui pra dibrar</a><br/><br/><br/><br/>", "text/html");
         Transport.send(message);
         log.info("Feito!!!");
     }

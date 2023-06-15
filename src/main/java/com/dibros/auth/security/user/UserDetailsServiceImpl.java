@@ -29,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         log.info("Buscando user: " + username);
-        Usuario usuario = this.usuarioRepository.findByUsername(username);
+        Usuario usuario = this.usuarioRepository.findByEmail(username);
         log.info("Application User found : '{}'", usuario);
         if (usuario == null)
             throw new UsernameNotFoundException(String.format("Application User '%s' not found", username));
@@ -40,6 +40,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private static final class CustomUserDetails extends Usuario implements UserDetails {
         CustomUserDetails(@NotNull Usuario usuario) {super(usuario);}
         @Override public Collection<? extends GrantedAuthority> getAuthorities() {return emptyList();}
+        @Override
+        public String getUsername() {return super.getEmail();}
         @Override public boolean isAccountNonExpired() {return true;}
         @Override public boolean isAccountNonLocked() {return true;}
         @Override public boolean isCredentialsNonExpired() {return true;}
