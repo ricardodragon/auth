@@ -38,9 +38,8 @@ public class UsuariosController {
 
     @PostMapping("/cadastro")
     @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
-    public ResponseEntity<UsuarioDTO> cadUsuario(@RequestPart UsuarioPostDTO usuarioPostDTO,
-                                                 @RequestPart(required = false)MultipartFile file) {
-        return new ResponseEntity<>(this.usuarioService.postCriptografico(usuarioPostDTO, file), HttpStatus.OK);
+    public ResponseEntity<UsuarioDTO> cadUsuario(@RequestBody UsuarioPostDTO usuarioPostDTO) {
+        return new ResponseEntity<>(this.usuarioService.postCriptografico(usuarioPostDTO), HttpStatus.OK);
     }
 
     @PostMapping("/email-token")
