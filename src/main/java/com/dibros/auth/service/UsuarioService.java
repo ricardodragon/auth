@@ -5,7 +5,6 @@ import com.dibros.core.model.Usuario;
 import com.dibros.auth.dto.UsuarioDTO;
 import com.dibros.auth.dto.UsuarioPostDTO;
 import com.dibros.auth.mapper.UsuarioMapper;
-import com.dibros.core.token.converter.TokenConverter;
 import com.dibros.core.token.creator.TokenCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -26,10 +25,10 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final TokenCreator tokenCreator;
-    private TokenConverter tokenConverter;
+    private Long idUser(){return ((Usuario) (SecurityContextHolder.getContext().getAuthentication().getPrincipal())).getId();}
 
-    public UsuarioDTO getApplicationUserByUsername(Usuario usuario) {
-        return UsuarioMapper.INSTANCE.toUsuarioDTO(usuario);
+    public UsuarioDTO getApplicationUserByUsername() {
+        return UsuarioMapper.INSTANCE.toUsuarioDTO(this.usuarioRepository.findById(idUser()).get());
     }
 
     public UsuarioDTO post(UsuarioPostDTO usuarioPostDTO) {
@@ -82,7 +81,7 @@ public class UsuarioService {
         //Remetente
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
         message.setSubject("Dando dibros");
-        message.setContent("Você está dando um dibros: \n<br/><br/> Link: <br/><a style='cursor:pointer;font-weigth:bolder;' href='http://localhost:3030/nova-senha/"+this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT(new Usuario().builder().id(0L).email(email).build()))+"'>Clique aqui pra dibrar</a><br/><br/><br/><br/>", "text/html");
+        message.setContent("Você está dando um dibros: \n<br/><br/> Link: <br/><a style='cursor:pointer;font-weigth:bolder;' href='http://localhost:3030/nova-senha/"+this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT(Usuario.builder().id(0L).email(email).build()))+"'>Clique aqui pra dibrar</a><br/><br/><br/><br/>", "text/html");
         Transport.send(message);
         log.info("Feito!!!");
     }
