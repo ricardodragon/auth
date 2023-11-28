@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
@@ -29,7 +30,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         log.info("Buscando user: " + username);
-        Usuario usuario = this.usuarioRepository.findByEmail(username);
+        Usuario usuario = this.usuarioRepository.findByEmail(username).orElseThrow(EntityNotFoundException::new);
         log.info("Application User found : '{}'", usuario);
         if (usuario == null)
             throw new UsernameNotFoundException(String.format("Application User '%s' not found", username));

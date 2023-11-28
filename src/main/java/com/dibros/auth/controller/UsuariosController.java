@@ -34,7 +34,7 @@ public class UsuariosController {
 
     @PostMapping
     @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
-    public ResponseEntity<UsuarioDTO> postUsuario(@RequestBody UsuarioPostDTO usuarioPostDTO) {
+    public ResponseEntity<UsuarioDTO> cadUsuario(@RequestBody UsuarioPostDTO usuarioPostDTO) {
         try{
             return new ResponseEntity<>(this.usuarioService.post(usuarioPostDTO), HttpStatus.OK);
         } catch (Exception e) {
@@ -43,37 +43,14 @@ public class UsuariosController {
         }
     }
 
-    @PostMapping("/cadastro")
-    @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
-    public ResponseEntity<UsuarioDTO> cadUsuario(@RequestBody UsuarioPostDTO usuarioPostDTO) {
-        try{
-            return new ResponseEntity<>(this.usuarioService.postCriptografico(usuarioPostDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @PostMapping("/email-token")
     @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
-    public ResponseEntity<String> emailToken(@RequestParam String email) {
+    public ResponseEntity<String> emailToken(@RequestParam String email, @RequestHeader(name="origin") final String host) {
         try{
-            return new ResponseEntity<>(this.usuarioService.emailToken(email), HttpStatus.OK);
+            return new ResponseEntity<>(this.usuarioService.emailToken(email, host), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    @PutMapping
-    @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
-    public ResponseEntity<UsuarioDTO> putUsuario(@RequestBody UsuarioPostDTO usuarioPostDTO) {
-        try{
-            return new ResponseEntity<>(this.usuarioService.put(usuarioPostDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

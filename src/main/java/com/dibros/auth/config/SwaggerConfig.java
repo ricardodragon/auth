@@ -1,4 +1,4 @@
-package com.dibros.auth.docs;
+package com.dibros.auth.config;
 
 import com.dibros.core.docs.BaseSwaggerConfig;
 import org.springframework.context.annotation.Configuration;

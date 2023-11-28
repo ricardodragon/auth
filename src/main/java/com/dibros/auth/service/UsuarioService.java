@@ -22,41 +22,31 @@ import java.util.Properties;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @Slf4j
 public class UsuarioService {
-
     private final UsuarioRepository usuarioRepository;
     private final TokenCreator tokenCreator;
-    private Long idUser(){return ((Usuario) (SecurityContextHolder.getContext().getAuthentication().getPrincipal())).getId();}
+    private final UsuarioMapper mapper;
+    private Usuario getUser(){return ((Usuario) (SecurityContextHolder.getContext().getAuthentication().getPrincipal()));}
 
     public UsuarioDTO getApplicationUserByUsername() {
-        return UsuarioMapper.INSTANCE.toUsuarioDTO(this.usuarioRepository.findById(idUser()).get());
+        return this.mapper.toUsuarioDTO(this.usuarioRepository.findById(getUser().getId()).get());
     }
 
     public UsuarioDTO post(UsuarioPostDTO usuarioPostDTO) {
-        return UsuarioMapper.INSTANCE.toUsuarioDTO(this.usuarioRepository.save(UsuarioMapper.INSTANCE.toUsuarioCryp(usuarioPostDTO)));
+        Usuario u = this.usuarioRepository.findByEmail(getUser().getEmail()).orElse(new Usuario());
+        this.mapper.mergeToUsuario(usuarioPostDTO, u);
+        u.setEmail(getUser().getEmail());
+        return this.mapper.toUsuarioDTO(this.usuarioRepository.save(u));
     }
 
-    @SneakyThrows
-    public UsuarioDTO postCriptografico(UsuarioPostDTO usuarioPostDTO) {
-        usuarioPostDTO.setEmail(((Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail());
-        return UsuarioMapper.INSTANCE.toUsuarioDTO(this.usuarioRepository.save(UsuarioMapper.INSTANCE.toUsuarioCryp(usuarioPostDTO)));
-    }
-
-    public String emailToken(String email) {
-        Session session = Session.getDefaultInstance(properties(), new Authenticator() {
-            @Override protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("ricardoelfuego@gmail.com", "cupbmuntnfklludh");
-            }
-        });
-        this.envia(session, email);
+    public String emailToken(String email, String host) {
+        Usuario u = this.usuarioRepository.findByEmail(email).orElse(Usuario.builder().id(0L).email(email).build());
+        Session session = Session.getDefaultInstance(properties(), new Authenticator() {@Override protected PasswordAuthentication getPasswordAuthentication() {return new PasswordAuthentication("ricardoelfuego@gmail.com", "cupbmuntnfklludh");}});
+        this.envia(session, u, host);
         return "Oi filho";
     }
 
-    public UsuarioDTO put(UsuarioPostDTO usuarioPostDTO) {
-        return UsuarioMapper.INSTANCE.toUsuarioDTO(this.usuarioRepository.save(UsuarioMapper.INSTANCE.toUsuarioCryp(usuarioPostDTO)));
-    }
-
     public Iterable<UsuarioDTO> getAllUsuarios() {
-        return UsuarioMapper.INSTANCE. toListUsuarioDTO(this.usuarioRepository.findAll());
+        return this.mapper.toListUsuarioDTO(this.usuarioRepository.findAll());
     }
 
     public String deleteUser(Long id) {
@@ -75,15 +65,14 @@ public class UsuarioService {
     }
 
     @SneakyThrows
-    private void envia(Session session, String email){
+    private void envia(Session session, Usuario u, String host){
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress("ricardoelfuego@gmail.com"));
         //Remetente
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(u.getEmail()));
         message.setSubject("Dando dibros");
-        message.setContent("Você está dando um dibros: \n<br/><br/> Link: <br/><a style='cursor:pointer;font-weigth:bolder;' href='http://localhost:3030/nova-senha/"+this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT(Usuario.builder().id(0L).email(email).build()))+"'>Clique aqui pra dibrar</a><br/><br/><br/><br/>", "text/html");
+        message.setContent("Você está dando um dibros: \n<br/><br/> Link: <br/><a style='cursor:pointer;font-weigth:bolder;' href='"+host+"/nova-senha/"+this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT(Usuario.builder().id(u.getId()).email(u.getEmail()).build()))+"?esqueci="+(!u.getId().equals(0L))+"'>Clique aqui pra dibrar</a><br/><br/><br/><br/>", "text/html");
         Transport.send(message);
-        log.info("Feito!!!");
     }
 }
 
