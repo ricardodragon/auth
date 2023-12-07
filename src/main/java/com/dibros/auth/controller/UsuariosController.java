@@ -24,56 +24,31 @@ public class UsuariosController {
     @GetMapping
     @ApiOperation(value = "List all available courses", response = UsuarioDTO.class)
     public ResponseEntity<UsuarioDTO> getUsuario() {
-        try{
-            return new ResponseEntity<>(this.usuarioService.getApplicationUserByUsername(), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return this.usuarioService.getApplicationUserByUsername();
     }
 
     @PostMapping
     @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
     public ResponseEntity<UsuarioDTO> cadUsuario(@RequestBody UsuarioPostDTO usuarioPostDTO) {
-        try{
-            return new ResponseEntity<>(this.usuarioService.post(usuarioPostDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return this.usuarioService.post(usuarioPostDTO);
     }
 
     @PostMapping("/email-token")
     @ApiOperation(value = "Create an new User", response = UsuarioDTO.class)
     public ResponseEntity<String> emailToken(@RequestParam String email, @RequestHeader(name="origin") final String host) {
-        try{
-            return new ResponseEntity<>(this.usuarioService.emailToken(email, host), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return this.usuarioService.emailToken(email, host);
     }
 
     @GetMapping("/all")
     @ApiOperation(value = "List all available courses", response = UsuarioDTO[].class)
     public ResponseEntity<Iterable<UsuarioDTO>> getUsuarios() {
-        try{
-            return new ResponseEntity<>(this.usuarioService.getAllUsuarios(), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return this.usuarioService.getAllUsuarios();
     }
 
     @DeleteMapping("/{id}")
     @ApiOperation(value = "List all available courses", response = UsuarioDTO[].class)
     public ResponseEntity<String> deleteUsuario(Principal principal, @PathVariable Long id) {
-        try{
-            return new ResponseEntity<>(this.usuarioService.deleteUser(id), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return this.usuarioService.deleteUser(id);
     }
 
 

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -27,31 +29,31 @@ public class UsuarioService {
     private final UsuarioMapper mapper;
     private Usuario getUser(){return ((Usuario) (SecurityContextHolder.getContext().getAuthentication().getPrincipal()));}
 
-    public UsuarioDTO getApplicationUserByUsername() {
-        return this.mapper.toUsuarioDTO(this.usuarioRepository.findById(getUser().getId()).get());
+    public ResponseEntity<UsuarioDTO> getApplicationUserByUsername() {
+        return ResponseEntity.ok(this.mapper.toUsuarioDTO(this.usuarioRepository.findById(getUser().getId()).get()));
     }
 
-    public UsuarioDTO post(UsuarioPostDTO usuarioPostDTO) {
+    public ResponseEntity<UsuarioDTO> post(UsuarioPostDTO usuarioPostDTO) {
         Usuario u = this.usuarioRepository.findByEmail(getUser().getEmail()).orElse(new Usuario());
         this.mapper.mergeToUsuario(usuarioPostDTO, u);
         u.setEmail(getUser().getEmail());
-        return this.mapper.toUsuarioDTO(this.usuarioRepository.save(u));
+        return ResponseEntity.ok(this.mapper.toUsuarioDTO(this.usuarioRepository.save(u)));
     }
 
-    public String emailToken(String email, String host) {
+    public ResponseEntity<String> emailToken(String email, String host) {
         Usuario u = this.usuarioRepository.findByEmail(email).orElse(Usuario.builder().id(0L).email(email).build());
         Session session = Session.getDefaultInstance(properties(), new Authenticator() {@Override protected PasswordAuthentication getPasswordAuthentication() {return new PasswordAuthentication("ricardoelfuego@gmail.com", "cupbmuntnfklludh");}});
         this.envia(session, u, host);
-        return "Oi filho";
+        return ResponseEntity.ok("Oi filho");
     }
 
-    public Iterable<UsuarioDTO> getAllUsuarios() {
-        return this.mapper.toListUsuarioDTO(this.usuarioRepository.findAll());
+    public ResponseEntity<Iterable<UsuarioDTO>> getAllUsuarios() {
+        return ResponseEntity.ok(this.mapper.toListUsuarioDTO(this.usuarioRepository.findAll()));
     }
 
-    public String deleteUser(Long id) {
+    public ResponseEntity<String> deleteUser(Long id) {
         this.usuarioRepository.deleteById(id);
-        return "Ok";
+        return ResponseEntity.ok("Ok");
     }
 
     private static Properties properties(){
