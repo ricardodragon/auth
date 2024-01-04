@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.util.Optional;
 import java.util.Properties;
 
 @Service
@@ -30,7 +31,8 @@ public class UsuarioService {
     private Usuario getUser(){return ((Usuario) (SecurityContextHolder.getContext().getAuthentication().getPrincipal()));}
 
     public ResponseEntity<UsuarioDTO> getApplicationUserByUsername() {
-        return ResponseEntity.ok(this.mapper.toUsuarioDTO(this.usuarioRepository.findById(getUser().getId()).get()));
+        Optional<Usuario> o = this.usuarioRepository.findById(getUser().getId());
+        return o.map(usuario -> ResponseEntity.ok(this.mapper.toUsuarioDTO(usuario))).orElseGet(() -> new ResponseEntity<>(new UsuarioDTO(), HttpStatus.UNAUTHORIZED));
     }
 
     public ResponseEntity<UsuarioDTO> post(UsuarioPostDTO usuarioPostDTO) {
@@ -73,7 +75,7 @@ public class UsuarioService {
         //Remetente
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(u.getEmail()));
         message.setSubject("Dando dibros");
-        message.setContent("Você está dando um dibros: \n<br/><br/> Link: <br/><a style='cursor:pointer;font-weigth:bolder;' href='"+host+"/nova-senha/"+this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT(Usuario.builder().id(u.getId()).email(u.getEmail()).build()))+"?esqueci="+(!u.getId().equals(0L))+"'>Clique aqui pra dibrar</a><br/><br/><br/><br/>", "text/html");
+        message.setContent("Você está dando um dibros: \n<br/><br/> Link: <br/><a style='cursor:pointer;font-weigth:bolder;' href='https://dibros.com.br/nova-senha/"+this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT(Usuario.builder().id(u.getId()).email(u.getEmail()).build()))+"?esqueci="+(!u.getId().equals(0L))+"'>Clique aqui pra dibrar</a><br/><br/><br/><br/>", "text/html");
         Transport.send(message);
     }
 }

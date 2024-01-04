@@ -30,11 +30,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         log.info("Buscando user: " + username);
-        Usuario usuario = this.usuarioRepository.findByEmail(username).orElseThrow(EntityNotFoundException::new);
+        Usuario usuario = this.usuarioRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException(String.format("Usuário '%s' não encontrado", username)));
         log.info("Application User found : '{}'", usuario);
-        if (usuario == null)
-            throw new UsernameNotFoundException(String.format("Application User '%s' not found", username));
-
         return new CustomUserDetails(usuario);
     }
 
