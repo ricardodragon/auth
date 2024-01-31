@@ -44,7 +44,7 @@ public class SecurityCredentialsConfig extends TokenConfig {
 
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setHideUserNotFoundExceptions(false);
         provider.setUserDetailsService(this.userDetailsService);

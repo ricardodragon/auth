@@ -1,10 +1,10 @@
 package com.dibros.auth.service;
 
+import com.dibros.auth.mapper.UsuarioMapper;
 import com.dibros.auth.repository.UsuarioRepository;
 import com.dibros.core.model.Usuario;
 import com.dibros.auth.dto.UsuarioDTO;
 import com.dibros.auth.dto.UsuarioPostDTO;
-import com.dibros.auth.mapper.UsuarioMapper;
 import com.dibros.core.token.creator.TokenCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.Optional;
 import java.util.Properties;
 
 @Service
@@ -27,19 +26,19 @@ import java.util.Properties;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final TokenCreator tokenCreator;
-    private final UsuarioMapper mapper;
+
     private Usuario getUser(){return ((Usuario) (SecurityContextHolder.getContext().getAuthentication().getPrincipal()));}
 
     public ResponseEntity<UsuarioDTO> getApplicationUserByUsername() {
-        Optional<Usuario> o = this.usuarioRepository.findById(getUser().getId());
-        return o.map(usuario -> ResponseEntity.ok(this.mapper.toUsuarioDTO(usuario))).orElseGet(() -> new ResponseEntity<>(new UsuarioDTO(), HttpStatus.UNAUTHORIZED));
+        return this.usuarioRepository.findById(getUser().getId())
+            .map(u -> ResponseEntity.ok(UsuarioMapper.toDTO(u)))
+            .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED));
     }
 
     public ResponseEntity<UsuarioDTO> post(UsuarioPostDTO usuarioPostDTO) {
-        Usuario u = this.usuarioRepository.findByEmail(getUser().getEmail()).orElse(new Usuario());
-        this.mapper.mergeToUsuario(usuarioPostDTO, u);
-        u.setEmail(getUser().getEmail());
-        return ResponseEntity.ok(this.mapper.toUsuarioDTO(this.usuarioRepository.save(u)));
+        return this.usuarioRepository.findByEmail(getUser().getEmail())
+            .map(u -> ResponseEntity.ok(UsuarioMapper.toDTO(this.usuarioRepository.save(UsuarioMapper.toModel(usuarioPostDTO, u)))))
+            .orElse(ResponseEntity.ok(UsuarioMapper.toDTO(this.usuarioRepository.save(UsuarioMapper.toModel(usuarioPostDTO)))));
     }
 
     public ResponseEntity<String> emailToken(String email, String host) {
@@ -47,10 +46,6 @@ public class UsuarioService {
         Session session = Session.getDefaultInstance(properties(), new Authenticator() {@Override protected PasswordAuthentication getPasswordAuthentication() {return new PasswordAuthentication("ricardoelfuego@gmail.com", "cupbmuntnfklludh");}});
         this.envia(session, u, host);
         return ResponseEntity.ok("Oi filho");
-    }
-
-    public ResponseEntity<Iterable<UsuarioDTO>> getAllUsuarios() {
-        return ResponseEntity.ok(this.mapper.toListUsuarioDTO(this.usuarioRepository.findAll()));
     }
 
     public ResponseEntity<String> deleteUser(Long id) {

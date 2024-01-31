@@ -3,17 +3,12 @@ package com.dibros.auth.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
+@Builder
 public class UsuarioDTO {
 
     private Long id;
     private String email;
-    @Getter(onMethod = @__( @JsonIgnore))
-    private String password;
     private String nome;
     private String imagemPath;
 

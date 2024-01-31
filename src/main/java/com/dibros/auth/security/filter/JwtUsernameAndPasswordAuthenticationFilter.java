@@ -7,7 +7,6 @@ import com.dibros.core.token.creator.TokenCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.util.encoders.UTF8;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -61,7 +60,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     @SneakyThrows
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication auth) {
-        response.addHeader("Access-Control-Expose-Headers", "XSRF-TOKEN" + jwtConfiguration.getHeader().getName());
+        //response.addHeader("Access-Control-Expose-Headers", "XSRF-TOKEN" + jwtConfiguration.getHeader().getName());
         response.addHeader(jwtConfiguration.getHeader().getName(), jwtConfiguration.getHeader().getPrefix() + this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT((Usuario) auth.getPrincipal())));
     }
 }

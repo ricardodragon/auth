@@ -39,12 +39,6 @@ public class UsuariosController {
         return this.usuarioService.emailToken(email, host);
     }
 
-    @GetMapping("/all")
-    @ApiOperation(value = "List all available courses", response = UsuarioDTO[].class)
-    public ResponseEntity<Iterable<UsuarioDTO>> getUsuarios() {
-        return this.usuarioService.getAllUsuarios();
-    }
-
     @DeleteMapping("/{id}")
     @ApiOperation(value = "List all available courses", response = UsuarioDTO[].class)
     public ResponseEntity<String> deleteUsuario(Principal principal, @PathVariable Long id) {

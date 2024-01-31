@@ -1,18 +1,37 @@
 package com.dibros.auth.mapper;
 
-import com.dibros.core.model.Usuario;
 import com.dibros.auth.dto.UsuarioDTO;
 import com.dibros.auth.dto.UsuarioPostDTO;
-import org.mapstruct.*;
+import com.dibros.core.model.Usuario;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, imports = BCryptPasswordEncoder.class)
-public interface UsuarioMapper {
-    @Mapping(expression = "java(usuarioPostDTO.getPassword()!=null?new BCryptPasswordEncoder().encode(usuarioPostDTO.getPassword()):usuario.getPassword())", target = "password")
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void mergeToUsuario(UsuarioPostDTO usuarioPostDTO, @MappingTarget Usuario usuario);
-    UsuarioDTO toUsuarioDTO(Usuario usuario);
-    Iterable<UsuarioDTO> toListUsuarioDTO(Iterable<Usuario> usuario);
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void toMerge(UsuarioDTO usuarioDTO, @MappingTarget Usuario usuario);
+public class UsuarioMapper {
+
+    private UsuarioMapper(){ throw new AssertionError(); }
+
+    public static Usuario toModel(UsuarioPostDTO usuarioPostDTO) {
+        return Usuario.builder()
+            .id(usuarioPostDTO.getId())
+            .email(usuarioPostDTO.getEmail())
+            .nome(usuarioPostDTO.getNome())
+            .imagemPath(usuarioPostDTO.getImagemPath())
+            .password(new BCryptPasswordEncoder().encode(usuarioPostDTO.getPassword()))
+            .build();
+    }
+
+    public static Usuario toModel(UsuarioPostDTO usuarioPostDTO, Usuario u) {
+        u.setEmail(usuarioPostDTO.getEmail());
+        u.setNome(usuarioPostDTO.getNome());
+        u.setImagemPath(usuarioPostDTO.getImagemPath());
+        return u;
+    }
+
+    public static UsuarioDTO toDTO(Usuario usuario) {
+        return UsuarioDTO.builder()
+            .id(usuario.getId())
+            .email(usuario.getEmail())
+            .nome(usuario.getNome())
+            .imagemPath(usuario.getImagemPath())
+            .build();
+    }
 }
