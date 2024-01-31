@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
 import java.util.Properties;
 
 @Service
@@ -35,6 +36,7 @@ public class UsuarioService {
             .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED));
     }
 
+    @Transactional
     public ResponseEntity<UsuarioDTO> post(UsuarioPostDTO usuarioPostDTO) {
         return this.usuarioRepository.findByEmail(getUser().getEmail())
             .map(u -> ResponseEntity.ok(UsuarioMapper.toDTO(this.usuarioRepository.save(UsuarioMapper.toModel(usuarioPostDTO, u)))))
