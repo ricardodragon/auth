@@ -7,11 +7,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -41,7 +39,7 @@ public class UsuariosController {
 
     @DeleteMapping("/{id}")
     @ApiOperation(value = "List all available courses", response = UsuarioDTO[].class)
-    public ResponseEntity<String> deleteUsuario(Principal principal, @PathVariable Long id) {
+    public ResponseEntity<String> deleteUsuario(@PathVariable Long id) {
         return this.usuarioService.deleteUser(id);
     }
 
