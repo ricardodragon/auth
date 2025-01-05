@@ -1,11 +1,14 @@
 package com.dibros.auth.repository;
 
 import com.dibros.core.model.Usuario;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.data.repository.reactive.ReactiveSortingRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
-import java.util.Optional;
 
-public interface UsuarioRepository extends PagingAndSortingRepository<Usuario, Long> {
+@Repository
+public interface UsuarioRepository extends ReactiveSortingRepository<Usuario, Long>, ReactiveCrudRepository<Usuario, Long> {
 
-    Optional<Usuario> findByEmail(String username);
+    Mono<Usuario> findByEmail(String username);
 }

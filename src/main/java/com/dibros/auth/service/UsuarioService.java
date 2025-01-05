@@ -1,58 +1,72 @@
 package com.dibros.auth.service;
 
+import com.dibros.auth.dto.UsuarioDTO;
+import com.dibros.auth.dto.UsuarioPostDTO;
 import com.dibros.auth.mapper.UsuarioMapper;
 import com.dibros.auth.repository.UsuarioRepository;
 import com.dibros.core.model.Usuario;
-import com.dibros.auth.dto.UsuarioDTO;
-import com.dibros.auth.dto.UsuarioPostDTO;
 import com.dibros.core.token.creator.TokenCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.transaction.Transactional;
 import java.util.Properties;
 
+import static org.apache.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 @Service
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@RequiredArgsConstructor
 @Slf4j
 public class UsuarioService {
+
     private final UsuarioRepository usuarioRepository;
     private final TokenCreator tokenCreator;
 
-    private Usuario getUser(){return ((Usuario) (SecurityContextHolder.getContext().getAuthentication().getPrincipal()));}
+    public Mono<Usuario> getUser(){
+        return ReactiveSecurityContextHolder.getContext()
+                .map(SecurityContext::getAuthentication).map(Authentication::getPrincipal).cast(Usuario.class);
+    }
 
-    public ResponseEntity<UsuarioDTO> getApplicationUserByUsername() {
-        return this.usuarioRepository.findById(getUser().getId())
-            .map(u -> ResponseEntity.ok(UsuarioMapper.toDTO(u)))
-            .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED));
+    public Mono<UsuarioDTO> getApplicationUserByUsername() {
+        return getUser()
+            .flatMap(usuario -> this.usuarioRepository.findById(usuario.getId()).map(UsuarioMapper::toDTO));
     }
 
     @Transactional
-    public ResponseEntity<UsuarioDTO> post(UsuarioPostDTO usuarioPostDTO) {
-        return this.usuarioRepository.findByEmail(getUser().getEmail())
-            .map(u -> ResponseEntity.ok(UsuarioMapper.toDTO(this.usuarioRepository.save(UsuarioMapper.toModel(usuarioPostDTO, u)))))
-            .orElse(ResponseEntity.ok(UsuarioMapper.toDTO(this.usuarioRepository.save(UsuarioMapper.toModel(usuarioPostDTO)))));
+    public Mono<UsuarioDTO> post(UsuarioPostDTO usuarioPostDTO) {
+        return getUser().flatMap(usuario -> this.usuarioRepository.findByEmail(usuario.getEmail())
+            .flatMap(entity -> this.usuarioRepository.save(UsuarioMapper.toModel(usuarioPostDTO, entity)).map(UsuarioMapper::toDTO)));
     }
 
-    public ResponseEntity<String> emailToken(String email, String host) {
-        Usuario u = this.usuarioRepository.findByEmail(email).orElse(Usuario.builder().id(0L).email(email).build());
-        Session session = Session.getDefaultInstance(properties(), new Authenticator() {@Override protected PasswordAuthentication getPasswordAuthentication() {return new PasswordAuthentication("ricardoelfuego@gmail.com", "cupbmuntnfklludh");}});
-        this.envia(session, u, host);
-        return ResponseEntity.ok("Oi filho");
+    public Mono<String> emailToken(String email) {
+        return this.usuarioRepository.findByEmail(email)
+            .defaultIfEmpty(Usuario.builder().id(0L).email(email).build())
+            .map(u -> {this.envia(u); return "Oi filho"; });
     }
 
-    public ResponseEntity<String> deleteUser(Long id) {
-        this.usuarioRepository.deleteById(id);
-        return ResponseEntity.ok("Ok");
+    public Mono<String> deleteUser(Long id) {
+        return Mono.fromRunnable(()-> this.usuarioRepository.deleteById(id).then()).map(o -> "Ok");
+    }
+
+    public Mono<ResponseEntity<Object>> login(UsuarioPostDTO usuarioPostDTO) {
+        return this.usuarioRepository.findByEmail(usuarioPostDTO.getEmail())
+            .map(usuario -> new BCryptPasswordEncoder().matches(usuarioPostDTO.getPassword(), usuario.getPassword())?
+                ResponseEntity.ok().header(AUTHORIZATION, String.format("Bearer %s", this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT(usuario)))).body((Object) ""):
+                new ResponseEntity<Object>("Senha inválida", UNAUTHORIZED))
+            .defaultIfEmpty(new ResponseEntity<>(String.format("Usuário '%s' não encontrado", usuarioPostDTO.getEmail()), UNAUTHORIZED))
+            .doOnError(Throwable::getLocalizedMessage);
     }
 
     private static Properties properties(){
@@ -66,7 +80,13 @@ public class UsuarioService {
     }
 
     @SneakyThrows
-    private void envia(Session session, Usuario u, String host){
+    private void envia(Usuario u){
+        Session session = Session.getDefaultInstance(properties(), new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("ricardoelfuego@gmail.com", "cupbmuntnfklludh");
+            }
+        });
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress("ricardoelfuego@gmail.com"));
         //Remetente

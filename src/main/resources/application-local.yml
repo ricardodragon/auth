@@ -1,8 +1,13 @@
 server:
   port: 5000
+
 spring:
   application:
     name: auth
+  r2dbc:
+    url: r2dbc:mysql://127.0.0.1:3306/dibros?allowPublicKeyRetrieval=true&sslMode=DISABLED&useTimezone=true&serverTimezone=UTC
+    username: root
+    password: root
   jpa:
     show-sql: false
     hibernate:
@@ -10,12 +15,11 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
   jmx:
     enabled: false
-  datasource:
-    url: jdbc:mysql://127.0.0.1:3306/dibros?allowPublicKeyRetrieval=true&sslMode=DISABLED&useTimezone=true&serverTimezone=UTC
-    username: root
-    password: root
 
 eureka:
   instance:
@@ -23,6 +27,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:7081/eureka/
+
 jwt:
   config:
     type: signed
