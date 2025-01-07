@@ -46,8 +46,8 @@ public class UsuarioService {
 
     @Transactional
     public Mono<UsuarioDTO> post(UsuarioPostDTO usuarioPostDTO) {
-        return getUser().flatMap(usuario -> this.usuarioRepository.findByEmail(usuario.getEmail())
-            .flatMap(entity -> this.usuarioRepository.save(UsuarioMapper.toModel(usuarioPostDTO, entity)).map(UsuarioMapper::toDTO)));
+        return getUser().flatMap(usuario -> this.usuarioRepository.findByEmail(usuario.getEmail()).defaultIfEmpty(usuario))
+            .flatMap(entity -> this.usuarioRepository.save(UsuarioMapper.toModel(usuarioPostDTO, entity)).map(UsuarioMapper::toDTO));
     }
 
     public Mono<String> emailToken(String email) {
@@ -81,7 +81,7 @@ public class UsuarioService {
 
     @SneakyThrows
     private void envia(Usuario u){
-        Session session = Session.getDefaultInstance(properties(), new Authenticator() {
+        Session session = Session.getInstance(properties(), new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication("ricardoelfuego@gmail.com", "cupbmuntnfklludh");

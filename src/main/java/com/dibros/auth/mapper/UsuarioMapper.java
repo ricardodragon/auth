@@ -12,7 +12,6 @@ public class UsuarioMapper {
     public static Usuario toModel(UsuarioPostDTO usuarioPostDTO) {
         return Usuario.builder()
             .id(usuarioPostDTO.getId())
-            .email(usuarioPostDTO.getEmail())
             .nome(usuarioPostDTO.getNome())
             .imagemPath(usuarioPostDTO.getImagemPath())
             .password(new BCryptPasswordEncoder().encode(usuarioPostDTO.getPassword()))
@@ -20,7 +19,9 @@ public class UsuarioMapper {
     }
 
     public static Usuario toModel(UsuarioPostDTO usuarioPostDTO, Usuario u) {
-        u.setEmail(usuarioPostDTO.getEmail());
+        if(u.getId().equals(0L))
+            u.setId(null);
+        u.setEmail(u.getEmail());
         u.setNome(usuarioPostDTO.getNome());
         u.setImagemPath(usuarioPostDTO.getImagemPath());
         return u;

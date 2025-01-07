@@ -4,8 +4,6 @@ import com.dibros.auth.dto.UsuarioDTO;
 import com.dibros.auth.dto.UsuarioPostDTO;
 import com.dibros.auth.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 

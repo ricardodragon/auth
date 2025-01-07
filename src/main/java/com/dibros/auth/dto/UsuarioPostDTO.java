@@ -14,6 +14,5 @@ public class UsuarioPostDTO {
     private String password;
     private String nome;
     private String imagemPath;
-    private String token;
 
 }
