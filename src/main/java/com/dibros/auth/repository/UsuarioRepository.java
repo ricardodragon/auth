@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 
 @Repository
-public interface UsuarioRepository extends ReactiveSortingRepository<Usuario, Long>, ReactiveCrudRepository<Usuario, Long> {
+public interface UsuarioRepository extends ReactiveCrudRepository<Usuario, Long> {
 
     Mono<Usuario> findByEmail(String username);
 }

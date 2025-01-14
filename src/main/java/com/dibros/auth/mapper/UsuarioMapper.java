@@ -5,6 +5,8 @@ import com.dibros.auth.dto.UsuarioPostDTO;
 import com.dibros.core.model.Usuario;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Objects;
+
 public class UsuarioMapper {
 
     private UsuarioMapper(){ throw new AssertionError(); }
@@ -22,8 +24,9 @@ public class UsuarioMapper {
         if(u.getId().equals(0L))
             u.setId(null);
         u.setEmail(u.getEmail());
-        u.setNome(usuarioPostDTO.getNome());
-        u.setImagemPath(usuarioPostDTO.getImagemPath());
+        u.setNome(Objects.isNull(usuarioPostDTO.getNome())?u.getNome():usuarioPostDTO.getNome());
+        u.setImagemPath(Objects.isNull(usuarioPostDTO.getImagemPath())?u.getImagemPath():usuarioPostDTO.getImagemPath());
+        u.setPassword(Objects.isNull(usuarioPostDTO.getPassword())?u.getPassword():new BCryptPasswordEncoder().encode(usuarioPostDTO.getPassword()));
         return u;
     }
 

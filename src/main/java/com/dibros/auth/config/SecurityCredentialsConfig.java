@@ -3,7 +3,6 @@ package com.dibros.auth.config;
 import com.dibros.core.token.config.TokenConfig;
 import com.dibros.core.token.filter.JwtTokenAuthorizationFilter;
 import com.dibros.core.token.property.JwtConfiguration;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
