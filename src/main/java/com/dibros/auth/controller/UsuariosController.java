@@ -25,7 +25,7 @@ public class UsuariosController {
         return this.usuarioService.post(usuarioPostDTO);
     }
 
-    @PostMapping("/email-token")
+    @PostMapping("/public/email-token")
     public Mono<String> emailToken(@RequestParam String email) {
         return this.usuarioService.emailToken(email);
     }

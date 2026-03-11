@@ -16,10 +16,6 @@ import java.util.Arrays;
 @EnableWebFluxSecurity
 public class SecurityCredentialsConfig extends TokenConfig{
 
-    public SecurityCredentialsConfig(JwtConfiguration jwtConfiguration) {
-        this.getUrls().addAll(Arrays.asList(jwtConfiguration.getLoginUrl(), "/usuarios/email-token"));
-    }
-
     @Bean
     @Override
     public SecurityWebFilterChain configure(ServerHttpSecurity http){
