@@ -9,6 +9,7 @@ import com.dibros.core.token.creator.TokenCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -33,15 +34,17 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final TokenCreator tokenCreator;
+    @Value("${email.endereco}")
+    private String endereco;
+    @Value("${email.token}")
+    private String token;
 
     public Mono<Usuario> getUser(){
-        return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication).map(Authentication::getPrincipal).cast(Usuario.class);
+        return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).map(Authentication::getPrincipal).cast(Usuario.class);
     }
 
     public Mono<UsuarioDTO> getApplicationUserByUsername() {
-        return getUser()
-            .flatMap(usuario -> this.usuarioRepository.findById(usuario.getId()).map(UsuarioMapper::toDTO));
+        return getUser().flatMap(usuario -> this.usuarioRepository.findById(usuario.getId()).map(UsuarioMapper::toDTO));
     }
 
     @Transactional
@@ -84,11 +87,11 @@ public class UsuarioService {
         Session session = Session.getInstance(properties(), new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("ricardoelfuego@gmail.com", "cupbmuntnfklludh");
+                return new PasswordAuthentication(endereco, token);
             }
         });
         Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress("ricardoelfuego@gmail.com"));
+        message.setFrom(new InternetAddress(endereco));
         //Remetente
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(u.getEmail()));
         message.setSubject("Dando dibros");
