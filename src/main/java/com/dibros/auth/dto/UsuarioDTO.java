@@ -10,6 +10,6 @@ public class UsuarioDTO {
     private Long id;
     private String email;
     private String nome;
-    private String imagemPath;
+    private String imagem;
 
 }

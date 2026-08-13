@@ -3,31 +3,31 @@ package com.dibros.auth.mapper;
 import com.dibros.auth.dto.UsuarioDTO;
 import com.dibros.auth.dto.UsuarioPostDTO;
 import com.dibros.core.model.Usuario;
+import io.r2dbc.spi.Row;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import java.util.Objects;
 
 public class UsuarioMapper {
 
     private UsuarioMapper(){ throw new AssertionError(); }
 
-    public static Usuario toModel(UsuarioPostDTO usuarioPostDTO) {
+    public static Usuario toModel(Row row) {
         return Usuario.builder()
-            .id(usuarioPostDTO.getId())
-            .nome(usuarioPostDTO.getNome())
-            .imagemPath(usuarioPostDTO.getImagemPath())
-            .password(new BCryptPasswordEncoder().encode(usuarioPostDTO.getPassword()))
-            .build();
+                .id(row.get("id", Long.class))
+                .email(row.get("email", String.class))
+                .nome(row.get("nome", String.class))
+                .imagem(row.get("imagem", String.class))
+                .password(row.get("password", String.class))
+                .build();
     }
 
-    public static Usuario toModel(UsuarioPostDTO usuarioPostDTO, Usuario u) {
-        if(u.getId().equals(0L))
-            u.setId(null);
-        u.setEmail(u.getEmail());
-        u.setNome(Objects.isNull(usuarioPostDTO.getNome())?u.getNome():usuarioPostDTO.getNome());
-        u.setImagemPath(Objects.isNull(usuarioPostDTO.getImagemPath())?u.getImagemPath():usuarioPostDTO.getImagemPath());
-        u.setPassword(Objects.isNull(usuarioPostDTO.getPassword())?u.getPassword():new BCryptPasswordEncoder().encode(usuarioPostDTO.getPassword()));
-        return u;
+    public static Usuario toModel(UsuarioPostDTO usuarioPostDTO, Usuario usuario) {
+        return Usuario.builder()
+            .id(usuario.getId())
+            .email(usuario.getEmail())
+            .nome(usuarioPostDTO.getNome())
+            .imagem(usuarioPostDTO.getImagem())
+            .password(new BCryptPasswordEncoder().encode(usuarioPostDTO.getPassword()))
+            .build();
     }
 
     public static UsuarioDTO toDTO(Usuario usuario) {
@@ -35,7 +35,7 @@ public class UsuarioMapper {
             .id(usuario.getId())
             .email(usuario.getEmail())
             .nome(usuario.getNome())
-            .imagemPath(usuario.getImagemPath())
+            .imagem(usuario.getImagem())
             .build();
     }
 }
