@@ -3,6 +3,7 @@ package com.dibros.auth.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -25,17 +26,20 @@ import java.nio.file.Paths;
 @Slf4j
 public class ImagemRepository {
 
+    @Value("${raiz:}")
+    private String raiz;
+
     public Mono<Void> saveImagem(String uri, FilePart imagem){
-        Path path = Paths.get(uri);
+        Path path = Paths.get(raiz+uri);
         return Mono.fromCallable(() -> Files.createDirectories(path.getParent()))
-                .subscribeOn(Schedulers.boundedElastic())
-                .then(Mono.defer(() -> imagem.transferTo(path)))
-                .onErrorMap(throwable -> new RuntimeException("Erro ao salvar o arquivo", throwable));
+            .subscribeOn(Schedulers.boundedElastic())
+            .then(Mono.defer(() -> imagem.transferTo(path)))
+            .onErrorMap(throwable -> new RuntimeException("Erro ao salvar o arquivo", throwable));
     }
 
     public Flux<DataBuffer> getImagem(String uri) {
         return DataBufferUtils.read(
-            Paths.get(uri),
+            Paths.get(raiz+uri),
             new DefaultDataBufferFactory(),
             4096
         ).onErrorResume(IOException.class, e -> Flux.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Imagem não encontrada")));
@@ -43,7 +47,7 @@ public class ImagemRepository {
 
     public Mono<Void> delete(String uri){
         return Mono.fromCallable(()-> {
-                FileUtils.deleteDirectory(new File(uri));
+                FileUtils.deleteDirectory(new File(raiz+uri));
                 return null;
             })
             .subscribeOn(Schedulers.boundedElastic())

@@ -1,10 +1,8 @@
 package com.dibros.auth.repository;
 
-import com.dibros.auth.dto.UsuarioPostDTO;
 import com.dibros.auth.mapper.UsuarioMapper;
 import com.dibros.core.model.Usuario;
 import com.dibros.core.token.creator.TokenCreator;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -91,7 +89,6 @@ public class UsuarioRepository {
     public void enviaEmail(Usuario u){
         Message message = new MimeMessage(mailSession);
         message.setFrom(new InternetAddress(endereco));
-        //Remetente
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(u.getEmail()));
         message.setSubject("Dando dibros");
         message.setContent(format(BODY, u.getId().equals(0L)?"cadastro":"nova-senha", this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT(u))), "text/html");
