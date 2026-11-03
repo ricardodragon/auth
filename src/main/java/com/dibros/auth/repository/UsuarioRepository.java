@@ -57,7 +57,7 @@ public class UsuarioRepository {
     }
 
     public Mono<Usuario> save(Usuario usuario) {
-        return this.databaseClient.sql("insert into usuario values (:id, :password, :email, '', :nome, :imagem) ")
+        return this.databaseClient.sql("insert into usuario values (:id, :password, :email, :nome, :imagem) ")
                 .bind("id", usuario.getId())
                 .bind("password", usuario.getPassword())
                 .bind("email", usuario.getEmail())
