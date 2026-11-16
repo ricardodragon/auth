@@ -1,97 +1,83 @@
 package com.dibros.auth.service;
 
 import com.dibros.auth.dto.UsuarioDTO;
-import com.dibros.auth.dto.UsuarioPostDTO;
+import com.dibros.auth.dto.UsuarioPasswordDTO;
+import com.dibros.auth.dto.UsuarioSaveDTO;
+import com.dibros.auth.dto.UsuarioUpdateDTO;
 import com.dibros.auth.mapper.UsuarioMapper;
-import com.dibros.auth.repository.ImagemRepository;
+import com.dibros.auth.records.UsuarioRecord;
 import com.dibros.auth.repository.UsuarioRepository;
-import com.dibros.core.model.Usuario;
-import com.dibros.core.token.creator.TokenCreator;
+import com.dibros.auth.security.PasswordCrypto;
+import com.dibros.core.mapper.ImagemMapper;
+import com.dibros.core.model.imagem.ImagemTipoEnum;
+import com.dibros.core.model.usuario.Usuario;
+import com.dibros.core.repository.ImagemRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.mail.*;
-import java.util.Objects;
-import java.util.UUID;
-
-import static java.text.MessageFormat.format;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final ImagemRepository imagemRepository;
-    private final TokenCreator tokenCreator;
-    private final String URL = "servidor-prod/usuario/{0}/";
+    private final PasswordCrypto passwordCrypto;
 
-    public Mono<UsuarioDTO> getApplicationUserByUsername(Authentication authentication) {
-        return this.usuarioRepository.getUser(authentication)
-            .flatMap(u -> this.usuarioRepository.findById(u.getId()))
-            .map(UsuarioMapper::toDTO);
+    private Mono<Usuario> getUser(Authentication authentication) {
+        return Mono.justOrEmpty(authentication)
+                .map(Authentication::getPrincipal)
+                .ofType(Usuario.class);
     }
 
-    public Flux<DataBuffer> getImagem(Long id, String imagem) {
-        return this.imagemRepository.getImagem(format(URL, id)+imagem);
+    public Mono<UsuarioDTO> getUsuario(Authentication authentication) {
+        return this.getUser(authentication)
+                .map(Usuario::getId)
+                .flatMap(this.usuarioRepository::findById)
+                .map(UsuarioMapper::toDTO);
     }
 
-    @Transactional
-    public Mono<Long> post(UsuarioPostDTO usuarioPostDTO, FilePart imagem, Authentication authentication) {
-        usuarioPostDTO.setImagem(UUID.randomUUID().toString());
-        return this.usuarioRepository.getUser(authentication)
-            .map(u -> UsuarioMapper.toModel(usuarioPostDTO, u))
-            .flatMap(this.usuarioRepository::save)
-            .flatMap(u -> this.imagemRepository.saveImagem(format(URL, u.getId())+u.getImagem(), imagem).thenReturn(u.getId()));
+    public Flux<DataBuffer> getImagem(String imagem) {
+        return this.imagemRepository.getImagem(ImagemTipoEnum.USUARIOS, imagem);
     }
 
-    @Transactional
-    public Mono<UsuarioDTO> put(UsuarioPostDTO usuarioPostDTO, FilePart imagem, Authentication authentication) {
-        usuarioPostDTO.setImagem(imagem!=null?UUID.randomUUID().toString():"");
-        return this.usuarioRepository.getUser(authentication)
-            .map(u -> UsuarioMapper.toModel(usuarioPostDTO, u))
-            .flatMap(this.usuarioRepository::update)
-            .flatMap(u -> Objects.isNull(imagem)?Mono.just(u):this.imagemRepository.delete(format(URL, u.getId())).thenReturn(u))
-            .flatMap(u -> Objects.isNull(imagem)?Mono.just(u):this.imagemRepository.saveImagem(format(URL, u.getId())+u.getImagem(), imagem).thenReturn(u))
-            .map(UsuarioMapper::toDTO);
+    public Mono<Long> post(UsuarioSaveDTO dto, FilePart imagem, Authentication authentication) {
+        return this.getUser(authentication)
+                .filter(u -> u.getId() != null && u.getId().equals(0L))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, "Token inválido")))
+                .zipWith(this.passwordCrypto.encode(dto), UsuarioMapper::toModel)
+                .zipWith(this.imagemRepository.saveImagem(ImagemTipoEnum.USUARIOS, imagem), UsuarioMapper::toModel)
+                .flatMap(this.usuarioRepository::save)
+                .map(Usuario::getId);
     }
 
-    public Mono<Long> putPassword(UsuarioPostDTO usuarioPostDTO, Authentication authentication){
-        return this.usuarioRepository.getUser(authentication)
-            .flatMap(u -> this.usuarioRepository.updatePassword(UsuarioMapper.toModel(usuarioPostDTO, u).getPassword(), u));
+    public Mono<UsuarioDTO> put(UsuarioUpdateDTO dto, FilePart imagem, Authentication authentication) {
+        return this.getUser(authentication)
+                .zipWith(this.passwordCrypto.encode(dto), UsuarioMapper::toModel)
+                .zipWith(this.imagemRepository.saveImagem(ImagemTipoEnum.USUARIOS, imagem).defaultIfEmpty(ImagemMapper.empty()), UsuarioMapper::toModel)
+                .flatMap(this.usuarioRepository::update)
+                .map(UsuarioMapper::toDTO);
     }
 
-    public Mono<Void> emailToken(String email) {
-        return this.usuarioRepository.findByEmail(email)
-            .defaultIfEmpty(Usuario.builder().id(0L).email(email).build())
-            .doOnNext(this.usuarioRepository::enviaEmail).then();
+    public Mono<Long> putPassword(UsuarioPasswordDTO dto, Authentication authentication) {
+        return this.getUser(authentication)
+                .zipWith(this.passwordCrypto.encode(dto), UsuarioMapper::toModel)
+                .flatMap(this.usuarioRepository::updatePassword);
     }
 
     public Mono<Long> deleteUser(Authentication authentication) {
-        return this.usuarioRepository.getUser(authentication)
-            .flatMap(this.usuarioRepository::delete)
-            .flatMap(usuario -> this.imagemRepository.delete(format(URL, usuario.getId())+usuario.getImagem()).thenReturn(usuario.getId()));
-    }
-
-    public Mono<ResponseEntity<Object>> login(UsuarioPostDTO usuarioPostDTO) {
-        return this.usuarioRepository.findByEmail(usuarioPostDTO.getEmail())
-            .map(usuario -> new BCryptPasswordEncoder().matches(usuarioPostDTO.getPassword(), usuario.getPassword())?
-                ResponseEntity.ok().header(AUTHORIZATION, String.format("Bearer %s", this.tokenCreator.encryptToken(this.tokenCreator.createSignedJWT(usuario)))).body((Object) ""):
-                new ResponseEntity<Object>("Senha inválida", UNAUTHORIZED)
-            )
-            .defaultIfEmpty(new ResponseEntity<>(String.format("Usuário '%s' não encontrado", usuarioPostDTO.getEmail()), UNAUTHORIZED))
-            .doOnError(Throwable::getLocalizedMessage);
+        return this.getUser(authentication)
+                .map(Usuario::getId)
+                .flatMap(this.usuarioRepository::findById)
+                .delayUntil(u -> this.usuarioRepository.delete(u.id()))
+                .delayUntil(u -> this.imagemRepository.delete(ImagemTipoEnum.USUARIOS, u.imagem()))
+                .map(UsuarioRecord::id);
     }
 
 }

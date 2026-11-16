@@ -10,6 +10,8 @@ spring:
     password: root
   jmx:
     enabled: false
+  jackson:
+    default-property-inclusion: non_null
 
 eureka:
   instance:
@@ -23,8 +25,9 @@ eureka:
 jwt:
   config:
     type: signed
+    private-key: ${JWT_SECRET}
 
 email:
-  token: ${token}
+  token: ${TOKEN}
   endereco: ricardoelfuego@gmail.com
 

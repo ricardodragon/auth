@@ -1,15 +1,9 @@
 package com.dibros.auth.dto;
 
-import lombok.Builder;
-import lombok.Data;
-
-@Data
-@Builder
-public class UsuarioDTO {
-
-    private Long id;
-    private String email;
-    private String nome;
-    private String imagem;
-
-}
+public record UsuarioDTO(
+        Long id,
+        String email,
+        String nome,
+        String vulgo,
+        String imagem
+) {}

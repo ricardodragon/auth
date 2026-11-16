@@ -1,0 +1,13 @@
+package com.dibros.auth.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+@With
+public record UsuarioSaveDTO(
+        @NotBlank @Size(min = 2, max = 100) String nome,
+        @Pattern(regexp = "^[a-z0-9._]{3,30}$") String vulgo,
+        @NotBlank @Size(min = 6, max = 100) String password
+) {}
