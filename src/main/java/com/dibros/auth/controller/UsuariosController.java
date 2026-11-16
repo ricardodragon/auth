@@ -32,18 +32,18 @@ public class UsuariosController {
     }
 
     @PostMapping
-    public Mono<Long> cadUsuario(Authentication authentication, @RequestPart @Valid UsuarioSaveDTO dto, @RequestPart FilePart imagem) {
-        return this.usuarioService.post(dto, imagem, authentication);
+    public Mono<Long> cadUsuario(Authentication authentication, @RequestPart @Valid UsuarioSaveDTO usuario, @RequestPart FilePart imagem) {
+        return this.usuarioService.post(usuario, imagem, authentication);
     }
 
     @PutMapping
-    public Mono<UsuarioDTO> update(Authentication authentication, @RequestPart @Valid UsuarioUpdateDTO dto, @RequestPart(required = false) FilePart imagem) {
-        return this.usuarioService.put(dto, imagem, authentication);
+    public Mono<UsuarioDTO> update(Authentication authentication, @RequestPart @Valid UsuarioUpdateDTO usuario, @RequestPart(required = false) FilePart imagem) {
+        return this.usuarioService.put(usuario, imagem, authentication);
     }
 
     @PutMapping("/password")
-    public Mono<Long> updatePassword(Authentication authentication, @RequestBody @Valid UsuarioPasswordDTO dto) {
-        return this.usuarioService.putPassword(dto, authentication);
+    public Mono<Long> updatePassword(Authentication authentication, @RequestBody @Valid UsuarioPasswordDTO usuario) {
+        return this.usuarioService.putPassword(usuario, authentication);
     }
 
     @DeleteMapping
