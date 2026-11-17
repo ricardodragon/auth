@@ -4,13 +4,16 @@ import com.dibros.auth.mapper.UsuarioMapper;
 import com.dibros.auth.records.UsuarioRecord;
 import com.dibros.core.model.usuario.Usuario;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
 import static com.dibros.auth.sql.UsuarioSQL.*;
+import static io.r2dbc.spi.R2dbcType.VARCHAR;
 
 @RequiredArgsConstructor
 @Repository
@@ -53,29 +56,37 @@ public class UsuarioRepository {
     }
 
     public Mono<Usuario> update(Usuario usuario) {
-        DatabaseClient.GenericExecuteSpec spec = this.databaseClient.sql(UPDATE)
+        return this.databaseClient.sql(UPDATE)
                 .bind("id", usuario.getId())
                 .bind("nome", usuario.getNome())
-                .bind("imagem", usuario.getImagem());
-
-        spec = (usuario.getVulgo() != null) ? spec.bind("vulgo", usuario.getVulgo()) : spec.bindNull("vulgo", String.class);
-        spec = (usuario.getPassword() != null) ? spec.bind("password", usuario.getPassword()) : spec.bindNull("password", String.class);
-
-        return spec.fetch().rowsUpdated().thenReturn(usuario);
+                .bind("imagem", usuario.getImagem())
+                .bind("vulgo", inOrNull(usuario.getVulgo(), VARCHAR))
+                .bind("password", inOrNull(usuario.getPassword(), VARCHAR))
+                .fetch()
+                .rowsUpdated()
+                .filter(rows -> rows > 0)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")))
+                .thenReturn(usuario);
     }
 
-    public Mono<Long> updatePassword(Usuario usuario) {
+    public Mono<Void> updatePassword(Usuario usuario) {
         return this.databaseClient.sql(UPDATE_PASSWORD)
                 .bind("password", usuario.getPassword())
                 .bind("id", usuario.getId())
                 .fetch()
-                .rowsUpdated();
+                .rowsUpdated()
+                .filter(rows -> rows > 0)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")))
+                .then();
     }
 
-    public Mono<Long> delete(Long idUser) {
+    public Mono<Void> delete(Long idUser) {
         return this.databaseClient.sql(DELETE)
-                .bind("id", idUser)
-                .fetch()
-                .rowsUpdated();
+            .bind("id", idUser)
+            .fetch()
+            .rowsUpdated()
+            .filter(rows -> rows > 0)
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao deletar usuário")))
+            .then();
     }
 }

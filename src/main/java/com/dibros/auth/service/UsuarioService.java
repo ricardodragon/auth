@@ -8,6 +8,7 @@ import com.dibros.auth.mapper.UsuarioMapper;
 import com.dibros.auth.records.UsuarioRecord;
 import com.dibros.auth.repository.UsuarioRepository;
 import com.dibros.auth.security.PasswordCrypto;
+import com.dibros.core.annotation.TipoImagem;
 import com.dibros.core.mapper.ImagemMapper;
 import com.dibros.core.model.imagem.ImagemTipoEnum;
 import com.dibros.core.model.usuario.Usuario;
@@ -27,6 +28,7 @@ import reactor.core.publisher.Mono;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    @TipoImagem(ImagemTipoEnum.USUARIOS)
     private final ImagemRepository imagemRepository;
     private final PasswordCrypto passwordCrypto;
 
@@ -44,7 +46,7 @@ public class UsuarioService {
     }
 
     public Flux<DataBuffer> getImagem(String imagem) {
-        return this.imagemRepository.getImagem(ImagemTipoEnum.USUARIOS, imagem);
+        return this.imagemRepository.getImagem(imagem);
     }
 
     public Mono<Long> post(UsuarioSaveDTO dto, FilePart imagem, Authentication authentication) {
@@ -52,7 +54,7 @@ public class UsuarioService {
                 .filter(u -> u.getId() != null && u.getId().equals(0L))
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, "Token inválido")))
                 .zipWith(this.passwordCrypto.encode(dto), UsuarioMapper::toModel)
-                .zipWith(this.imagemRepository.saveImagem(ImagemTipoEnum.USUARIOS, imagem), UsuarioMapper::toModel)
+                .zipWith(this.imagemRepository.saveImagem(imagem), UsuarioMapper::toModel)
                 .flatMap(this.usuarioRepository::save)
                 .map(Usuario::getId);
     }
@@ -60,24 +62,25 @@ public class UsuarioService {
     public Mono<UsuarioDTO> put(UsuarioUpdateDTO dto, FilePart imagem, Authentication authentication) {
         return this.getUser(authentication)
                 .zipWith(this.passwordCrypto.encode(dto), UsuarioMapper::toModel)
-                .zipWith(this.imagemRepository.saveImagem(ImagemTipoEnum.USUARIOS, imagem).defaultIfEmpty(ImagemMapper.empty()), UsuarioMapper::toModel)
+                .zipWith(this.imagemRepository.saveImagem(imagem).defaultIfEmpty(ImagemMapper.empty()), UsuarioMapper::toModel)
                 .flatMap(this.usuarioRepository::update)
                 .map(UsuarioMapper::toDTO);
     }
 
-    public Mono<Long> putPassword(UsuarioPasswordDTO dto, Authentication authentication) {
+    public Mono<Void> putPassword(UsuarioPasswordDTO dto, Authentication authentication) {
         return this.getUser(authentication)
                 .zipWith(this.passwordCrypto.encode(dto), UsuarioMapper::toModel)
                 .flatMap(this.usuarioRepository::updatePassword);
     }
 
-    public Mono<Long> deleteUser(Authentication authentication) {
+    public Mono<Void> deleteUser(Authentication authentication) {
         return this.getUser(authentication)
                 .map(Usuario::getId)
                 .flatMap(this.usuarioRepository::findById)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")))
                 .delayUntil(u -> this.usuarioRepository.delete(u.id()))
-                .delayUntil(u -> this.imagemRepository.delete(ImagemTipoEnum.USUARIOS, u.imagem()))
-                .map(UsuarioRecord::id);
+                .map(UsuarioRecord::imagem)
+                .flatMap(this.imagemRepository::delete);
     }
 
 }

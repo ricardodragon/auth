@@ -4,7 +4,6 @@ import com.dibros.auth.mapper.EmailMapper;
 import com.dibros.auth.mapper.UsuarioMapper;
 import com.dibros.auth.repository.EmailRepository;
 import com.dibros.auth.repository.UsuarioRepository;
-import com.dibros.core.model.usuario.Usuario;
 import com.dibros.core.token.creator.TokenCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

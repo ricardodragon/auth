@@ -46,10 +46,7 @@ public final class UsuarioMapper {
     }
 
     public static Usuario toModel(Usuario usuario, UsuarioSaveDTO dto) {
-        String vulgo = (dto.vulgo() != null && !dto.vulgo().isBlank())
-                ? dto.vulgo().trim().toLowerCase()
-                : gerarVulgo(usuario.getEmail());
-
+        String vulgo = (dto.vulgo() != null && !dto.vulgo().isBlank()) ? dto.vulgo().trim().toLowerCase() : gerarVulgo(usuario.getEmail());
         return usuario.toBuilder()
                 .nome(dto.nome().trim())
                 .vulgo(vulgo)
@@ -60,7 +57,7 @@ public final class UsuarioMapper {
     public static Usuario toModel(Usuario usuario, UsuarioUpdateDTO dto) {
         return usuario.toBuilder()
                 .nome(dto.nome().trim())
-                .vulgo(dto.vulgo() != null && !dto.vulgo().isBlank() ? dto.vulgo().trim().toLowerCase() : null)
+                .vulgo(dto.vulgo().trim())
                 .password(dto.password() != null && !dto.password().isBlank() ? dto.password() : null)
                 .build();
     }

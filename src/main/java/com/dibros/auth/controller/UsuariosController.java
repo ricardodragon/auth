@@ -42,12 +42,12 @@ public class UsuariosController {
     }
 
     @PutMapping("/password")
-    public Mono<Long> updatePassword(Authentication authentication, @RequestBody @Valid UsuarioPasswordDTO usuario) {
+    public Mono<Void> updatePassword(Authentication authentication, @RequestBody @Valid UsuarioPasswordDTO usuario) {
         return this.usuarioService.putPassword(usuario, authentication);
     }
 
     @DeleteMapping
-    public Mono<Long> deleteUsuario(Authentication authentication) {
+    public Mono<Void> deleteUsuario(Authentication authentication) {
         return this.usuarioService.deleteUser(authentication);
     }
 
