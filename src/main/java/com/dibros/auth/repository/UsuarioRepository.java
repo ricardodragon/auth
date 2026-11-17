@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.Objects;
 
 import static com.dibros.auth.sql.UsuarioSQL.*;
+import static io.r2dbc.spi.Parameters.in;
 import static io.r2dbc.spi.R2dbcType.VARCHAR;
 
 @RequiredArgsConstructor
@@ -60,8 +61,8 @@ public class UsuarioRepository {
                 .bind("id", usuario.getId())
                 .bind("nome", usuario.getNome())
                 .bind("imagem", usuario.getImagem())
-                .bind("vulgo", inOrNull(usuario.getVulgo(), VARCHAR))
-                .bind("password", inOrNull(usuario.getPassword(), VARCHAR))
+                .bind("vulgo", usuario.getVulgo())
+                .bind("password", in(VARCHAR, usuario.getPassword()))
                 .fetch()
                 .rowsUpdated()
                 .filter(rows -> rows > 0)
