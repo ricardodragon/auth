@@ -63,12 +63,11 @@ public class UsuarioService {
                 .map(Usuario::getId);
     }
 
-    public Mono<UsuarioDTO> put(UsuarioUpdateDTO dto, FilePart imagem, Authentication authentication) {
+    public Mono<Void> put(UsuarioUpdateDTO dto, FilePart imagem, Authentication authentication) {
         return this.getUser(authentication)
-                .zipWith(this.passwordCrypto.encode(dto), UsuarioMapper::toModel)
-                .zipWith(this.imagemRepository.saveImagem(imagem).defaultIfEmpty(ImagemMapper.empty()), UsuarioMapper::toModel)
-                .flatMap(this.usuarioRepository::update)
-                .map(UsuarioMapper::toDTO);
+            .zipWith(this.passwordCrypto.encode(dto), UsuarioMapper::toModel)
+            .zipWith(this.imagemRepository.saveImagem(imagem).defaultIfEmpty(ImagemMapper.empty()), UsuarioMapper::toModel)
+            .flatMap(this.usuarioRepository::update);
     }
 
     public Mono<Void> putPassword(UsuarioPasswordDTO dto, Authentication authentication) {

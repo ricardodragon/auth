@@ -56,7 +56,7 @@ public class UsuarioRepository {
                 .first();
     }
 
-    public Mono<Usuario> update(Usuario usuario) {
+    public Mono<Void> update(Usuario usuario) {
         return this.databaseClient.sql(UPDATE)
                 .bind("id", usuario.getId())
                 .bind("nome", usuario.getNome())
@@ -67,7 +67,7 @@ public class UsuarioRepository {
                 .rowsUpdated()
                 .filter(rows -> rows > 0)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")))
-                .thenReturn(usuario);
+                .then();
     }
 
     public Mono<Void> updatePassword(Usuario usuario) {

@@ -37,11 +37,11 @@ public class UsuariosController {
     }
 
     @PutMapping
-    public Mono<UsuarioDTO> update(Authentication authentication, @RequestPart @Valid UsuarioUpdateDTO usuario, @RequestPart(required = false) FilePart imagem) {
+    public Mono<Void> update(Authentication authentication, @RequestPart @Valid UsuarioUpdateDTO usuario, @RequestPart(required = false) FilePart imagem) {
         return this.usuarioService.put(usuario, imagem, authentication);
     }
 
-    @PutMapping("/password")
+    @PatchMapping("/password")
     public Mono<Void> updatePassword(Authentication authentication, @RequestBody @Valid UsuarioPasswordDTO usuario) {
         return this.usuarioService.putPassword(usuario, authentication);
     }
