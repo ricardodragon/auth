@@ -14,6 +14,7 @@ import com.dibros.core.model.imagem.ImagemTipoEnum;
 import com.dibros.core.model.usuario.Usuario;
 import com.dibros.core.repository.ImagemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.FilePart;
@@ -23,13 +24,16 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    @Autowired
     @TipoImagem(ImagemTipoEnum.USUARIOS)
-    private final ImagemRepository imagemRepository;
+    private ImagemRepository imagemRepository;
     private final PasswordCrypto passwordCrypto;
 
     private Mono<Usuario> getUser(Authentication authentication) {
@@ -51,7 +55,7 @@ public class UsuarioService {
 
     public Mono<Long> post(UsuarioSaveDTO dto, FilePart imagem, Authentication authentication) {
         return this.getUser(authentication)
-                .filter(u -> u.getId() != null && u.getId().equals(0L))
+                .filter(u -> Objects.equals(u.getId(), 0L))
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, "Token inválido")))
                 .zipWith(this.passwordCrypto.encode(dto), UsuarioMapper::toModel)
                 .zipWith(this.imagemRepository.saveImagem(imagem), UsuarioMapper::toModel)

@@ -95,9 +95,7 @@ public final class UsuarioMapper {
     }
 
     private static String gerarVulgo(String email) {
-        String base = email.substring(0, email.indexOf('@'))
-                .toLowerCase()
-                .replaceAll("[^a-z0-9._]", "");
+        String base = email.substring(0, email.indexOf('@')).toLowerCase().replaceAll("[^a-z0-9._]", "");
         base = base.length() > 20 ? base.substring(0, 20) : base;
         base = base.isBlank() ? "user" : base;
         return base + ThreadLocalRandom.current().nextInt(1000, 9999);
