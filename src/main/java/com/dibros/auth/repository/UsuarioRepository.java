@@ -81,13 +81,18 @@ public class UsuarioRepository {
                 .then();
     }
 
-    public Mono<Void> delete(Long idUser) {
-        return this.databaseClient.sql(DELETE)
+    public Mono<String> delete(Long idUser) {
+        return this.databaseClient.sql(FIND_IMAGEM_BY_ID)
             .bind("id", idUser)
-            .fetch()
-            .rowsUpdated()
-            .filter(rows -> rows > 0)
-            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao deletar usuário")))
-            .then();
+            .map((row, metadata) -> Objects.requireNonNull(row.get("imagem", String.class)))
+            .first()
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")))
+            .delayUntil(imagem -> this.databaseClient.sql(DELETE)
+                .bind("id", idUser)
+                .fetch()
+                .rowsUpdated()
+                .filter(rows -> rows > 0)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao deletar usuário")))
+            );
     }
 }

@@ -5,6 +5,10 @@ public final class UsuarioSQL {
     private UsuarioSQL() { throw new AssertionError(); }
 
     // language=MySQL
+    public static final String FIND_IMAGEM_BY_ID = """
+        SELECT imagem FROM usuario WHERE id = :id""";
+
+    // language=MySQL
     public static final String FIND_BY_LOGIN = """
         SELECT * FROM usuario
         WHERE email = :login OR vulgo = :login

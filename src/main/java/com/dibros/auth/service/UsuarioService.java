@@ -80,10 +80,7 @@ public class UsuarioService {
     public Mono<Void> deleteUser(Authentication authentication) {
         return this.getUser(authentication)
                 .map(Usuario::getId)
-                .flatMap(this.usuarioRepository::findById)
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")))
-                .delayUntil(u -> this.usuarioRepository.delete(u.id()))
-                .map(UsuarioRecord::imagem)
+                .flatMap(this.usuarioRepository::delete)
                 .flatMap(this.imagemRepository::delete);
     }
 
