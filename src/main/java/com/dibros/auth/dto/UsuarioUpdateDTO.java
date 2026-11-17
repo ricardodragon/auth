@@ -8,6 +8,6 @@ import lombok.With;
 @With
 public record UsuarioUpdateDTO(
         @NotBlank @Size(min = 2, max = 100) String nome,
-        @Pattern(regexp = "^[a-z0-9._]{3,30}$") String vulgo,
+        @NotBlank @Pattern(regexp = "^[a-z0-9._]{3,30}$") String vulgo,
         @Size(min = 6, max = 100) String password
 ) {}
