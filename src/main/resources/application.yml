@@ -5,9 +5,9 @@ spring:
   application:
     name: auth
   r2dbc:
-    url: r2dbc:mysql://127.0.0.1:3306/dibros?allowPublicKeyRetrieval=true&sslMode=DISABLED&useTimezone=true&serverTimezone=UTC
-    username: root
-    password: root
+    url: ${SPRING_R2DBC_URL:r2dbc:mysql://127.0.0.1:3306/dibros?allowPublicKeyRetrieval=true&sslMode=DISABLED&useTimezone=true&serverTimezone=UTC}
+    username: ${SPRING_R2DBC_USERNAME:root}
+    password: ${SPRING_R2DBC_PASSWORD:root}
   jmx:
     enabled: false
   jackson:
