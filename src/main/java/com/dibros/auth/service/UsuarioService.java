@@ -49,6 +49,12 @@ public class UsuarioService {
                 .map(UsuarioMapper::toDTO);
     }
 
+    public Mono<UsuarioDTO> getUsuarioById(Long id) {
+        return Mono.just(id)
+                .flatMap(this.usuarioRepository::findById)
+                .map(UsuarioMapper::toDTO);
+    }
+
     public Flux<DataBuffer> getImagem(String imagem) {
         return this.imagemRepository.getImagem(imagem);
     }

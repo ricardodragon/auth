@@ -26,6 +26,11 @@ public class UsuariosController {
         return this.usuarioService.getUsuario(authentication);
     }
 
+    @GetMapping("/{id}")
+    public Mono<UsuarioDTO> getUsuarioById(@PathVariable Long id) {
+        return this.usuarioService.getUsuarioById(id);
+    }
+
     @GetMapping(value = "/imagem/{imagem}", produces = "image/*")
     public Flux<DataBuffer> getImagem(@PathVariable String imagem) {
         return this.usuarioService.getImagem(imagem);
