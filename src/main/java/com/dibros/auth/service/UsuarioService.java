@@ -1,9 +1,6 @@
 package com.dibros.auth.service;
 
-import com.dibros.auth.dto.UsuarioDTO;
-import com.dibros.auth.dto.UsuarioPasswordDTO;
-import com.dibros.auth.dto.UsuarioSaveDTO;
-import com.dibros.auth.dto.UsuarioUpdateDTO;
+import com.dibros.auth.dto.*;
 import com.dibros.auth.mapper.UsuarioMapper;
 import com.dibros.auth.records.UsuarioRecord;
 import com.dibros.auth.repository.UsuarioRepository;

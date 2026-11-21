@@ -21,6 +21,11 @@ public final class UsuarioSQL {
         """;
 
     // language=MySQL
+    public static final String FIND_PUBLIC_BY_ID = """
+        SELECT id, nome, vulgo, imagem FROM usuario WHERE id = :id
+        """;
+
+    // language=MySQL
     public static final String FIND_BY_EMAIL = """
         SELECT * FROM usuario WHERE email = :email
         """;

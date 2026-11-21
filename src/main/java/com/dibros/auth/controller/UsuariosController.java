@@ -1,9 +1,6 @@
 package com.dibros.auth.controller;
 
-import com.dibros.auth.dto.UsuarioDTO;
-import com.dibros.auth.dto.UsuarioPasswordDTO;
-import com.dibros.auth.dto.UsuarioSaveDTO;
-import com.dibros.auth.dto.UsuarioUpdateDTO;
+import com.dibros.auth.dto.*;
 import com.dibros.auth.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

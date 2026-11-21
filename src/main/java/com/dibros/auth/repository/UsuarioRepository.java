@@ -31,7 +31,7 @@ public class UsuarioRepository {
     }
 
     public Mono<UsuarioRecord> findById(Long idUser) {
-        return this.databaseClient.sql(FIND_BY_ID)
+        return this.databaseClient.sql(FIND_PUBLIC_BY_ID)
                 .bind("id_user", idUser)
                 .map(UsuarioMapper::toRecord)
                 .first();

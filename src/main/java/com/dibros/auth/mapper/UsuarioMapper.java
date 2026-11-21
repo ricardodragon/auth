@@ -1,9 +1,6 @@
 package com.dibros.auth.mapper;
 
-import com.dibros.auth.dto.UsuarioDTO;
-import com.dibros.auth.dto.UsuarioPasswordDTO;
-import com.dibros.auth.dto.UsuarioSaveDTO;
-import com.dibros.auth.dto.UsuarioUpdateDTO;
+import com.dibros.auth.dto.*;
 import com.dibros.auth.records.UsuarioRecord;
 import com.dibros.core.model.usuario.Usuario;
 import com.dibros.core.records.ImagemRecord;
@@ -19,11 +16,11 @@ public final class UsuarioMapper {
     public static UsuarioRecord toRecord(Row row, RowMetadata rowMetadata) {
         return new UsuarioRecord(
                 row.get("id", Long.class),
-                row.get("email", String.class),
+                rowMetadata.contains("email") ? row.get("email", String.class) : null,
                 row.get("nome", String.class),
                 row.get("vulgo", String.class),
                 row.get("imagem", String.class),
-                row.get("password", String.class)
+                rowMetadata.contains("password") ? row.get("password", String.class) : null
         );
     }
 
@@ -81,16 +78,6 @@ public final class UsuarioMapper {
                 record.nome(),
                 record.vulgo(),
                 record.imagem()
-        );
-    }
-
-    public static UsuarioDTO toDTO(Usuario usuario) {
-        return new UsuarioDTO(
-                usuario.getId(),
-                usuario.getEmail(),
-                usuario.getNome(),
-                usuario.getVulgo(),
-                usuario.getImagem()
         );
     }
 
