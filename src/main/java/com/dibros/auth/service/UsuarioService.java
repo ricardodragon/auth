@@ -48,7 +48,7 @@ public class UsuarioService {
 
     public Mono<UsuarioDTO> getUsuarioById(Long id) {
         return Mono.just(id)
-                .flatMap(this.usuarioRepository::findById)
+                .flatMap(this.usuarioRepository::findPublicById)
                 .map(UsuarioMapper::toDTO);
     }
 
